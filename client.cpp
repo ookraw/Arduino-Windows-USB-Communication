@@ -53,12 +53,12 @@ int main() {
 	DCB dcb= { 0 }; 	// DCB initialization
 	DWORD received;		// received number of bytes
 	char buf[NBUF];		// received / sent data
-	int  len;			// received / sent buffer length
-	int  start;			// start position of the start message in buf[]
-	char ip;			// port number 0 ... 9
+	int  len;		// received / sent buffer length
+	int  start;		// start position of the start message in buf[]
+	char ip;		// port number 0 ... 9
 
 	// EOD convention with Arduino : #
-    // ===============================
+    	// ===============================
 	// const char eod= '#';
 
 	// Arduino expects two integer parameters : 111 and 222
@@ -69,19 +69,19 @@ int main() {
 	printf("client start\n");
 	fflush(stdout);
 
-	// scan ports from COM0 to COM9
+    // scan ports from COM0 to COM9
     for (ip= 0; ip < 10; ip++) {
 
     	// set current port
     	// ----------------
     	port[3]= '0' + ip;
         h= NULL;
-        h = CreateFile(port,				// port name
+        h = CreateFile(port,			// port name
             GENERIC_READ | GENERIC_WRITE,	// read / write
-            0, NULL,						// no sharing , no security
-            OPEN_EXISTING, 					// Open existing port only
-			FILE_ATTRIBUTE_NORMAL, 			// Non Overlapped I/O
-			NULL);							// Null for Comm Devices
+            0, NULL,				// no sharing , no security
+            OPEN_EXISTING, 			// Open existing port only
+	    FILE_ATTRIBUTE_NORMAL, 		// Non Overlapped I/O
+	    NULL);				// Null for Comm Devices
 
         // check current port
         // ------------------
@@ -95,15 +95,15 @@ int main() {
 		fflush(stdout);
 
     	// set transmission parameters
-		// ---------------------------
+	// ---------------------------
         dcb.DCBlength= sizeof(dcb);
-        dcb.BaudRate = CBR_9600;  			// Setting BaudRate = 9600
-        dcb.ByteSize = 8;         			// Setting ByteSize = 8
-        dcb.StopBits = ONESTOPBIT;			// Setting StopBits = 1
-        dcb.Parity   = NOPARITY;  			// Setting Parity = None
-        // reset Arduino                       <----- Arduino reset !!!
+        dcb.BaudRate = CBR_9600;  		// Setting BaudRate = 9600
+        dcb.ByteSize = 8;         		// Setting ByteSize = 8
+        dcb.StopBits = ONESTOPBIT;		// Setting StopBits = 1
+        dcb.Parity   = NOPARITY;  		// Setting Parity = None
+        // reset Arduino                        <----- Arduino reset !!!
         dcb.fDtrControl = DTR_CONTROL_ENABLE;
-        // EOD expected from Arduino           <----- Arduino EOD !!!
+        // EOD expected from Arduino            <----- Arduino EOD !!!
         dcb.EvtChar= '#';
         if (!SetCommState(h, &dcb)) {
     		printf("Error setting CommState, exit \n");
@@ -116,7 +116,7 @@ int main() {
         // ---------------------
         if (!SetCommMask(h, EV_RXFLAG)) {
             printf("Error Setting CommMask, exit\n");
-    		return EXIT_FAILURE;
+    	    return EXIT_FAILURE;
         }
 
         // give Arduino time to start after reset
@@ -125,13 +125,13 @@ int main() {
 
         // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    	// get start message from Arduino
+    		// get start message from Arduino
 		// =================
-        // first action on Arduino: send start message to the client
-        // Arduino signals to be ready by a Serial.print("!start!#")
+        	// first action on Arduino: send start message to the client
+        	// Arduino signals to be ready by a Serial.print("!start!#")
 		// note that the message ends with the EOD character
-        // note also that the returned buffer may contain foreign
-        //      leading characters including '\0' or worse '#' !
+        	// note also that the returned buffer may contain foreign
+	    	//      leading characters including '\0' or worse '#' !
 
 		printf("get start message\n");
 		fflush(stdout);
@@ -148,17 +148,17 @@ int main() {
 				printf("%s< \n", buf + start);
 				fflush(stdout);
 			} else {
-	            printf("Error start message, exit\n");
-	    		return EXIT_FAILURE;
+	            		printf("Error start message, exit\n");
+	    			return EXIT_FAILURE;
 			}
 		} else {
-            printf("Error serialRead, exit\n");
-    		return EXIT_FAILURE;
+            		printf("Error serialRead, exit\n");
+    			return EXIT_FAILURE;
 		}
 
 		// send parameters to Arduino
 		// ===============
-        // second action on Arduino: receive 2 integers from the client
+        	// second action on Arduino: receive 2 integers from the client
 		printf("send parameters\n");
 		fflush(stdout);
 		len= PARAM_LEN;
@@ -168,15 +168,15 @@ int main() {
 			printf("parameters sent: %d bytes\n", len);
 			fflush(stdout);
 		} else {
-            printf("Error serialWrite, exit\n");
-    		return EXIT_FAILURE;
+            		printf("Error serialWrite, exit\n");
+    			return EXIT_FAILURE;
 		}
 		fflush(stdout);
 
-        // get result from Arduino
-		// ==========
-        // third action on Arduino: send result message back to the client
-		// Arduino must mark the EOD by a Serial.print("#")
+	    	// get result from Arduino
+	    	// ==========
+	    	// third action on Arduino: send result message back to the clien
+	    	// Arduino must mark the EOD by a Serial.print("#")
 		printf("get result\n");
 		fflush(stdout);
 		// wait (FOREVER) until the message arrives
@@ -188,16 +188,16 @@ int main() {
 			printf("%s< \n", buf);
 			goto END;
 		} else {
-            printf("Error serialRead, exit\n");
-    		return EXIT_FAILURE;
+            		printf("Error serialRead, exit\n");
+    			return EXIT_FAILURE;
 		}
 
     	CloseHandle(h);
     }   // scan ports loop
 
 END:
-	printf("client end\n");
-	CloseHandle(h);
+    printf("client end\n");
+    CloseHandle(h);
     return 0;
 }
 
@@ -211,14 +211,14 @@ bool serialRead (HANDLE h, char buf[], DWORD &received) {
 	DWORD   errors;
 	COMSTAT status;
 	DWORD   to_receive;
-    DWORD   dwEventMask;
+	DWORD   dwEventMask;
 
-    // wait FOREVER for the EOD character '#'
+	// wait FOREVER for the EOD character '#'
 	// --------------------------------------
-    // (note: no timeout available for WaitCommEvent!)
-    printf("wait (FOREVER!)\n");
+	// (note: no timeout available for WaitCommEvent!)
+	printf("wait (FOREVER!)\n");
 	fflush(stdout);
-    WaitCommEvent(h, &dwEventMask, NULL); //Wait for the character to be received
+	WaitCommEvent(h, &dwEventMask, NULL); //Wait for the character to be received
 
 	// get the number of bytes ready to be read
 	// ----------------------------------------
@@ -247,7 +247,7 @@ bool serialWrite(HANDLE h, char buf[], int &len) {
 
 	DWORD sent;
 	DWORD to_send;
-    DWORD dwEventMask;     // Event mask to trigger
+	DWORD dwEventMask;     // Event mask to trigger
 
 	// write
 	// -----
@@ -255,12 +255,9 @@ bool serialWrite(HANDLE h, char buf[], int &len) {
 	sent=    0;
 	WriteFile(h, buf, to_send, &sent, NULL);
 	// WAIT, otherwise problem with the following read!
-    WaitCommEvent(h, &dwEventMask, NULL);
+	WaitCommEvent(h, &dwEventMask, NULL);
 
 	if (to_send == sent) return(true);
 	else return(false);
 }
-
-/*
-*/
 
