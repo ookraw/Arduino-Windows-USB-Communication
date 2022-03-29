@@ -1,4 +1,4 @@
-# Arduino-Windows-UBS-Communication
+# Arduino-Windows-USB-Communication
 Felix Baessler, felix.baessler@gmail.com
 
 The project deals with the communication over an USB connection between:<br/>
